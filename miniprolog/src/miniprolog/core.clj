@@ -17,28 +17,11 @@
        (not (isvar x))
        (not (seq? x))))
 
-;; get facts/rules from the database
-(defn getdb [data]
-  (dosync (get @*db* data)))
-
-;; get rule name (rulename :- rulebody)
-(defn rulename [rule]
-  (first rule))
-
-;; get rule body
-(defn rulebody [rule]
-  (rest rule))
-
 ;; rule to prolog predicate name and arity (father X Y) -> [father 2]
 (defn rulekey [rule]
   (if (seq? (first rule))
     [(ffirst rule) (dec (count (first rule)))]
     [(first rule) (dec (count rule))]))
-
-;; get rules from database
-(defn getrules [rules]
-  (dosync
-    (get @*db* rules)))
 
 ;; append rules
 (defn addrule [rule]
@@ -157,8 +140,6 @@
         ;(println "QUERY --> " rules)
         (let [result (conj acc (interpret #{} rules))]
           (recur result (rest query)))))))
-          
-
 
 ;; query macro
 (defmacro ?- [& query]

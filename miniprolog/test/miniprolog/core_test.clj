@@ -91,7 +91,15 @@
   (is (= (?- (ancestor X tamara))
          '#{{X maria}
             {X albert}
-            {X george}})))
+            {X george}}))
+  
+  (def ans (?- (append (list 1 (list)) (list 2 (list)) L)))
+  
+  (is (= ans '#{{L (list 1 (list 2 (list)))}}))
+  
+  (def ans2 (?- (append (list 1 (list 2 (list))) (list 3 (list 4 (list))) R)))
+
+  (is (= ans2 '#{{R (list 1 (list 2 (list 3 (list 4 (list)))))}})))
 
  
 
