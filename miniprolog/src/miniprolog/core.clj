@@ -193,5 +193,3 @@
 ;; query macro
 (defmacro ?- [& query]
   `(query nil '~query))
-
-
