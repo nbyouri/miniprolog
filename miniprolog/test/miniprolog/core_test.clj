@@ -97,6 +97,10 @@
             {X albert}
             {X george}}))
   
+  (is (= (?- (mother laura C) (father bob C)) 
+         '#{{C frank}
+            {C anthony}}))
+  
   (def ans (?- (append (list 1 (list)) (list 2 (list)) L)))
   
   (is (= ans '#{{L (list 1 (list 2 (list)))}}))
