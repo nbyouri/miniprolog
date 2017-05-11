@@ -128,6 +128,17 @@
 (defmacro <- [& clause]
   `(addtodb '~clause))
 
+;; human output for the result set
+(defn output [result]
+  ;; if #{} or #{{}}
+  (if (empty? (first result))
+    (case (count result)
+      0 false
+      1 true)
+    ;; else return the set
+    result))
+
+
 ;; apply a query to the database
 (defn query [acc query]
   ;(println "INPUT " query)
@@ -135,11 +146,12 @@
     ;(println "RULE --> " rule)
     (if-not rule
       ; Return the first and only element of the list
-      (first acc)
+      (output (first acc))
       (let [rules (findrules [] (->Goal rule [rule] {} nil) rule {})]
         ;(println "QUERY --> " rules)
         (let [result (conj acc (interpret #{} rules))]
           (recur result (rest query)))))))
+
 
 ;; query macro
 (defmacro ?- [& query]

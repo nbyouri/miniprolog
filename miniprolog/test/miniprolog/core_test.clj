@@ -59,6 +59,10 @@
   (<- (append (list H T) L2 (list H TR))
       (append T L2 TR))
   
+  (is (= true (?- (female nadia))))
+  
+  (is (= false (?- (male nadia))))
+  
   (is (= (?- (male X))
          '#{{X george}
             {X albert}
