@@ -31,8 +31,11 @@
 (defmacro <- [& clause]
   `(addtodb '~clause))
 
-(defmacro ?- [query]
-  (solve *db* conj #{} query))
+(defmacro ?- [rule]
+  (println "RULE --> " rule)
+  (let [rules (findrules [] (->Goal rule [rule] {} nil) rule {})]
+    (println "QUERY --> " rules)
+    `(interpret #{} '~rules)))
 
 ;; rule to prolog predicate name and arity (father X Y) -> [father 2]
 (defn rulekey [rule]
@@ -50,21 +53,43 @@
     (update @*db* (rulekey rule) (fnil conj #{}) (if (seq? (first rule))
                                                    rule
                                                    (list rule))))
+
 (defn addtodb [rule]
   (let [rules (addrule rule)]
     (dosync
       (ref-set *db* rules))))
 
-(defrecord goal [head terms env parent])
+(defrecord Goal [head terms env parent])
 
 (defn findrules [queue parent term env]
   (reduce
     (fn [acc rule]
       (if-let [ans (unify term env (first rule) {})]
-        (conj acc (->goal (first rule) (next rule) ans parent))
+        (conj acc (->Goal (first rule) (next rule) ans parent))
         acc))
     queue
-    (*db* (rule-key term))))
+    (*db* (rulekey term))))
+
+(defn interpret [acc queue]
+  (println "queue " queue)
+  (let [{:keys [head terms env parent] :as goal} (peek queue)]
+    (println "goal " (:head goal))
+    (if-not goal
+      acc
+      (let [queue (pop queue)]
+        (println "let queue " queue)
+        (if-not terms
+          (if-not parent
+            (let [acc (conj acc env)]
+              (if (reduced? acc)     
+                acc
+                (recur acc queue)))
+            (let [parent-env (unify head env (-> parent :terms first) (:env parent))]
+              (recur acc (conj queue (assoc parent :env parent-env
+                                       :terms (-> parent :terms next))))))
+          (let [term  (first terms)
+                queue (findrules queue goal term env)]
+            (recur acc queue)))))))
 
 
 (defn lvar? [x]
